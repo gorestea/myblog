@@ -1,0 +1,113 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+	<title>{{title}}</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<link rel="shortcut icon" href="{% static 'blog/images/main.ico' %}" type="image/x-icon"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	{% block css %}
+	<link type="text/css" href="{% static 'blog/css/styles.css' %}" rel="stylesheet" />
+	{% endblock %}
+</head>
+<body>
+<table class="table-page" border=0 cellpadding="0" cellspacing="0">
+<tr><td valign=top>
+{% block mainmenu %}
+		<div class="header">
+			<ul id="mainmenu" class="mainmenu">
+			<li class="logo"><a href="{% url 'home' %}"><div class="logo"></div></a></li>
+
+				{% if request.user.is_superuser %}
+				<li><a href="{% url 'add_page' %}">Добавить статью</a></li>
+				{% endif %}
+
+				{% if request.user.is_authenticated %}
+				<li><a href="{% url 'contact' %}">Обратная связь</a></li>
+				<li class="last"><a href="{% url 'logout' %}">Выйти</a></li>
+				<li class="last">{{user.username}}</li>
+				{% else %}
+				<li class="last"><a href="{% url 'register' %}">Регистрация</a></li>
+				<li class="last"><a href="{% url 'login' %}">Войти</a></li>
+				{% endif %}
+			</ul>
+			<div class="clear"></div>
+		</div>
+{% endblock mainmenu %}
+
+
+<table class="table-content" border=0 cellpadding="0" cellspacing="0">
+<tr>
+<!-- Sidebar слева -->
+	<td valign="top" class="left-chapters">
+	<ul id="leftchapters">
+		{% if category_selected == 0 %}
+		<li class="selected">Все категории</li>
+		{% else %}
+		<li><a href="{% url 'home' %}">Все категории</a></li>
+		{% endif %}
+
+		{% for cat in category %}
+		{% if cat.post__count > 0 %}
+		{% if cat.pk == category_selected %}
+		<li class="selected">{{cat.name}}</li>
+		{% else %}
+		<li><a href="{{ cat.get_absolute_url }}">{{cat.name}}</a></li>
+		{% endif %}
+		{% endif %}
+		{% endfor %}
+
+		<li class="share">
+		<p>Мой канал</p>
+		<a class="share-yt" href="https://www.youtube.com/channel/UCQf0xo79fbYR2fn5aG1-CzQ" target="_blank" rel="nofollow"></a>
+		</li>
+	</ul>
+</td>
+<!-- Конец Sidebar'а -->
+<td valign="top" class="content">
+	{% block breadcrumbs %}
+	{% endblock %}
+
+<!-- Блок контента -->
+	<div class="content-text">
+{% block content %}
+{% endblock %}
+		{% if page_obj.has_other_pages %}
+		<div class="list-pages">
+			<ul>
+				{% if page_obj.has_previous %}
+				<li class="page-num">
+					<a href="?page={{page_obj.previous_page_number}}">&lt;</a>
+				</li>
+				{% endif %}
+				{% for p in paginator.page_range %}
+				{% if page_obj.number == p %}
+				<li class="page-num page-num-selected">{{p}}</li>
+				{% elif p >= page_obj.number|add:-2 and p <= page_obj.number|add:2 %}
+				<li class="page-num">
+					<a href="?page={{p}}">{{p}}</a>
+				</li>
+				{% endif %}
+				{% endfor %}
+
+				{% if page_obj.has_next %}
+				<li class="page-num">
+					<a href="?page={{page_obj.next_page_number}}">&gt;</a>
+				</li>
+				{% endif %}
+			</ul>
+		</div>
+		{% endif %}
+	</div>
+<!-- Конец блока контента -->
+
+</td></tr></table>
+</td></tr>
+<!-- Footer -->
+<tr><td valign=top>
+	<div id="footer">
+		<p>2023 год</p>
+	</div>
+</td></tr></table>
+</body>
+</html>
